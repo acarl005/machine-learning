@@ -99,8 +99,8 @@ J_vals = zeros(length(theta0_vals), length(theta1_vals));
 % Fill out J_vals
 for i = 1:length(theta0_vals)
     for j = 1:length(theta1_vals)
-	  t = [theta0_vals(i); theta1_vals(j)];
-	  J_vals(i,j) = computeCost(X, y, t);
+        t = [theta0_vals(i); theta1_vals(j)];
+        J_vals(i,j) = computeCost(X, y, t);
     end
 end
 

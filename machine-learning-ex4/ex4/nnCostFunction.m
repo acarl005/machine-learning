@@ -76,7 +76,7 @@ for k = 1:size(h, 2)
   J += (pos + neg) / m;   % add it all up and divide by the training set size
 end
 
-
+J += lambda / (2 * m) * (sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:, 2:end) .^ 2)));
 
 
 

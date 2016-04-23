@@ -62,45 +62,56 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% forward propagation
 a1 = [ones(m, 1) X];
 z2 = a1 * Theta1';
 a2 = [ones(m, 1) sigmoid(z2)];
 z3 = a2 * Theta2';
 a3 = h = sigmoid(z3);
 
-% calculate the cost
-for k = 1:size(h, 2)
-  y_k = y == k;   % convert y vector to a boolean vector showing whether this example is class k
-  h_k = h(:,k);   % get column k in the hypothesis (a.k.a. a_k^(3))
-  pos = -y_k' * log(h_k);   % get the cost from the "positives" (examples that DO belong to class k)
-  neg = (y_k - 1)' * log(1 - h_k);   % get the cost from the others "the negatives"
-  J += (pos + neg) / m;   % add it all up and divide by the training set size
-end
+% convert y vector of indices to matrix of class labels
+y = eye(num_labels)(y, :);
 
-sum_weights = sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:, 2:end) .^ 2));
+% calculate the cost
+pos = -y .* log(h); % get the cost from the "positives" (examples that DO belong to class k)
+neg = (y - 1) .* log(1 - h); % get the cost from the others "the negatives"
+J += sum(sum(pos + neg)) / m;
+
+% regularize
+% remove first column because we don't penalize the bias units
+weights_1 = Theta1(:, 2:end);
+weights_2 = Theta2(:, 2:end);
+% square them and sum up
+sum_weights = sum(sum(weights_1 .^ 2)) + sum(sum(weights_2 .^ 2));
 
 J += lambda / (2 * m) * sum_weights;
 
 
 % calculate the gradient
-delta2 = zeros(size(Theta1, 1), 1);
-delta3 = zeros(size(Theta2, 1), 1);
+% delta2 = zeros(size(Theta1, 1), 1);
+% delta3 = zeros(size(Theta2, 1), 1);
+%
+% for t = 1:m
+%   a3_t = a3(t, :);
+%   delta3 = a3_t' - (1:num_labels == y(t))';
+%   delta2 = Theta2' * delta3 .* sigmoidGradient([1 z2(t, :)])';
+%   delta2 = delta2(2:end);
+%   Theta1_grad = Theta1_grad + (delta2 * a1(t, :));
+%   Theta2_grad = Theta2_grad + (delta3 * a2(t, :));
+% end
+%
+%
+%
+% Theta1_grad /= m;
+% Theta2_grad /= m;
 
-for t = 1:m
-  a3_t = a3(t, :);
-  delta3 = a3_t' - (1:num_labels == y(t))';
-  delta2 = Theta2' * delta3 .* sigmoidGradient([1 z2(t, :)])';
-  delta2 = delta2(2:end);
-  Theta1_grad = Theta1_grad + (delta2 * a1(t, :));
-  Theta2_grad = Theta2_grad + (delta3 * a2(t, :));
-end
-
-
-
-Theta1_grad /= m;
-Theta2_grad /= m;
-
-
+% backpropagation
+delta_3 = a3 - y;
+z2 = [ones(m,1) z2]; % add a column of ones. we need to in order to make the dimensions work
+delta_2 = delta_3 * Theta2 .* sigmoidGradient(z2); % delta_3 * Theta2 has bias units, hence the need for extra column of ones
+delta_2 = delta_2(:, 2:end); % now get rid of those bias units
+Theta1_grad = (delta_2' * a1) /m;
+Theta2_grad = (delta_3' * a2) /m;
 
 % -------------------------------------------------------------
 

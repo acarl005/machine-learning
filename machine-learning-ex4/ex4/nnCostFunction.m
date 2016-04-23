@@ -87,31 +87,18 @@ sum_weights = sum(sum(weights_1 .^ 2)) + sum(sum(weights_2 .^ 2));
 J += lambda / (2 * m) * sum_weights;
 
 
-% calculate the gradient
-% delta2 = zeros(size(Theta1, 1), 1);
-% delta3 = zeros(size(Theta2, 1), 1);
-%
-% for t = 1:m
-%   a3_t = a3(t, :);
-%   delta3 = a3_t' - (1:num_labels == y(t))';
-%   delta2 = Theta2' * delta3 .* sigmoidGradient([1 z2(t, :)])';
-%   delta2 = delta2(2:end);
-%   Theta1_grad = Theta1_grad + (delta2 * a1(t, :));
-%   Theta2_grad = Theta2_grad + (delta3 * a2(t, :));
-% end
-%
-%
-%
-% Theta1_grad /= m;
-% Theta2_grad /= m;
-
-% backpropagation
+% backpropagation to calculate gradient
 delta_3 = a3 - y;
 z2 = [ones(m,1) z2]; % add a column of ones. we need to in order to make the dimensions work
 delta_2 = delta_3 * Theta2 .* sigmoidGradient(z2); % delta_3 * Theta2 has bias units, hence the need for extra column of ones
 delta_2 = delta_2(:, 2:end); % now get rid of those bias units
-Theta1_grad = (delta_2' * a1) /m;
-Theta2_grad = (delta_3' * a2) /m;
+Theta1_grad = (delta_2' * a1) / m;
+Theta2_grad = (delta_3' * a2) / m;
+% regularize
+% add extra column of ones to the weights
+Theta1_grad += [zeros(size(weights_1, 1), 1) weights_1] * lambda / m;
+Theta2_grad += [zeros(size(weights_2, 1), 1) weights_2] * lambda / m;
+
 
 % -------------------------------------------------------------
 

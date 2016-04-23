@@ -62,12 +62,13 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+a1 = [ones(m, 1) X];
+z2 = a1 * Theta1';
+a2 = [ones(m, 1) sigmoid(z2)];
+z3 = a2 * Theta2';
+a3 = h = sigmoid(z3);
 
-h = [ones(m, 1) X] * Theta1';
-h = sigmoid(h);
-h = [ones(m, 1) h] * Theta2';
-h = sigmoid(h);
-
+% calculate the cost
 for k = 1:size(h, 2)
   y_k = y == k;   % convert y vector to a boolean vector showing whether this example is class k
   h_k = h(:,k);   % get column k in the hypothesis (a.k.a. a_k^(3))
@@ -76,12 +77,28 @@ for k = 1:size(h, 2)
   J += (pos + neg) / m;   % add it all up and divide by the training set size
 end
 
-J += lambda / (2 * m) * (sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:, 2:end) .^ 2)));
+sum_weights = sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:, 2:end) .^ 2));
+
+J += lambda / (2 * m) * sum_weights;
+
+
+% calculate the gradient
+delta2 = zeros(size(Theta1, 1), 1);
+delta3 = zeros(size(Theta2, 1), 1);
+
+for t = 1:m
+  a3_t = a3(t, :);
+  delta3 = a3_t' - (1:num_labels == y(t))';
+  delta2 = Theta2' * delta3 .* sigmoidGradient([1 z2(t, :)])';
+  delta2 = delta2(2:end);
+  Theta1_grad = Theta1_grad + (delta2 * a1(t, :));
+  Theta2_grad = Theta2_grad + (delta3 * a2(t, :));
+end
 
 
 
-
-
+Theta1_grad /= m;
+Theta2_grad /= m;
 
 
 

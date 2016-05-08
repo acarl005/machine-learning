@@ -33,7 +33,7 @@ for i = 1:length(C_try)
   for j = 1:length(sigma_try)
     sigma = sigma_try(j);
     model = svmTrain(X, y, C, @(x1, x2) gaussianKernel(x1, x2, sigma));
-    predictions = svmPredict(model,Xval);
+    predictions = svmPredict(model, Xval);
 
     error(j, i) = mean(double(predictions ~= yval));
   end

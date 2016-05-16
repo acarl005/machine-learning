@@ -34,7 +34,7 @@ for i = 1:m
   for k = 1:K
     distances(k) = distance(X(i, :), centroids(k, :));
   end
-  idx(i) = find(distances == min(distances));
+  idx(i) = find(distances == min(distances), 1);
 end
 
 
